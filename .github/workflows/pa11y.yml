@@ -1,0 +1,53 @@
+name: Accessibility (pa11y)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  pa11y-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Optional: Build known subprojects if present
+        # This step attempts to build common example subprojects (adjust or extend as needed).
+        run: |
+          set -e
+          if [ -f "react/next/package.json" ]; then
+            echo "Building react/next"
+            npm ci --prefix react/next
+            npm run build --prefix react/next || true
+          fi
+          if [ -f "react/react-router/package.json" ]; then
+            echo "Building react/react-router"
+            npm ci --prefix react/react-router
+            npm run build --prefix react/react-router || true
+          fi
+
+      - name: Install pa11y-ci
+        run: npm install -g pa11y-ci@6
+
+      - name: Run pa11y-ci
+        # pa11y-ci will use .pa11yci by default; ensure your URLs point to reachable pages
+        run: |
+          echo "Running pa11y-ci with .pa11yci"
+          pa11y-ci --config .pa11yci || true
+
+      - name: Upload pa11y result (if generated)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pa11y-report
+          path: |
+            pa11y-report.json
+            pa11y-report.html

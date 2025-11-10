@@ -1,0 +1,19 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 30000,
+    "delay": 1000,
+    "screenCapture": false
+  },
+  "urls": [
+    {
+      "label": "Example homepage (placeholder)",
+      "url": "https://example.com/"
+    },
+    {
+      "label": "Local Storybook (if built)",
+      "url": "http://localhost:6006/",
+      "includeWarnings": true
+    }
+  ]
+}
